@@ -3,13 +3,16 @@ class ImageInformation():
     def __init__(self, file_name):
         self.read_file(file_name)
     
+    # Attempts to access the given file and parse information out.
+    # Saves the total image size, the size of each frame, and the total count of frames.
     def read_file(self, file_name):
         try:
-            with open(file_name + ".txt", 'r') as file:
-                self.total_size = tuple(file.next())
-                self.mask_size = tuple(file.next())
-                self.sprite_count = file.next() 
-        except:
+            with open("ImageInformation/" + file_name + ".txt", 'r') as file:
+                self.total_size = tuple([int(i) for i in file.readline().split(" ")])
+                self.mask_size = tuple([int(i) for i in file.readline().split(" ")])
+                self.sprite_count = int(file.readline()) 
+        except FileExistsError:
+            # If the file cannot be parsed, each of the values are set to 0.
             print(f"Error loading {file_name}.txt")
             self.total_size = (0, 0)
             self.mask_size = (0, 0)
