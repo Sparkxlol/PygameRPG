@@ -1,5 +1,5 @@
 import pygame
-from Spritesheet import Spritesheet
+import Game
 
 def main():
     pygame.init()
@@ -11,10 +11,7 @@ def main():
     SCREEN_HEIGHT = 500
 
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    all_sprites = pygame.sprite.Group() # Holds all objects in the game.
-    sword = Spritesheet("sword")
-
-    all_sprites.add(sword)
+    game = Game()
     
     # Main game loop, until the user quits.
     while True:
@@ -23,10 +20,11 @@ def main():
                 pygame.quit()
                 return # Breaks out of the function to stop the game.
         
-        all_sprites.update()
-
         screen.fill((0, 0, 0))
-        all_sprites.draw(screen)
+
+        game.update()
+        game.draw(screen)
+
         pygame.display.update()
 
         clock.tick(FPS)
