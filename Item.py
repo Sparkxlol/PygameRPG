@@ -12,9 +12,14 @@ class Item(Spritesheet):
     def __init__(self, file_name):
         super().__init__(file_name)
 
+        self.__item_name = file_name
+
     # Placeholder function to be overrided in each subclass.
     def use_item(self, character):
         pass
 
     def update(self):
         pass
+
+    def get_item_name(self):
+        return self.__item_name
