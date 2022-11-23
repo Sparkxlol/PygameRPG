@@ -9,13 +9,13 @@ from Character import Character
 # Health, Damage, Special
 class Enemy(Character):
     def __init__(self, file_name):
-        super().__init__(file_name, *self.get_information(file_name))
+        super().__init__(file_name, *Enemy.get_information(file_name))
     
     def get_information(file_name):
         try:
-            with file.open("Enemies/" + file_name + ".txt") as file:
-                values = [file.nextline()]
-                for value in file.nextline().split(" "):
+            with open("Enemies/" + file_name + ".txt") as file:
+                values = [file.readline().strip()]
+                for value in file.readline().split(" "):
                     values.append(int(value))
                 return tuple(values)
         except ValueError:

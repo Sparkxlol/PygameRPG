@@ -1,4 +1,9 @@
 # Class used to process and access spritesheet information
+#
+# File at ImageInformation/file_name.txt formatted as:
+# total_x, total_y
+# single_x, single_y
+# frame_count
 class ImageInformation():
     def __init__(self, file_name):
         self.read_file(file_name)

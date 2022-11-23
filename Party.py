@@ -2,13 +2,21 @@ from Character import Character
 
 class Party(Character):
     def __init__(self, file_name):
-        super().__init__(file_name, *self.get_information(file_name))
+        super().__init__(file_name, *Party.get_information(file_name))
+
+        self.__item = None
+
+    def set_item(self, item):
+        self.__item = item
+    
+    def get_item(self):
+        return self.__item
 
     def get_information(file_name):
         try:
-            with file.open("Party/" + file_name + ".txt") as file:
-                values = [file.nextline()]
-                for value in file.nextline().split(" "):
+            with open("Party/" + file_name + ".txt") as file:
+                values = [file.readline()]
+                for value in file.readline().split(" "):
                     values.append(int(value))
                 return tuple(values)
         except ValueError:

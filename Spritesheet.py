@@ -6,17 +6,18 @@ from ImageInformation import ImageInformation
 # Allows creation of multiple frames of sprites based on one given image.
 # This improves performance due to using one image, and allows animation.
 class Spritesheet(pygame.sprite.Sprite):
+    SCALE_FACTOR = 10
+
     def __init__(self, file_name):
         super().__init__()
 
         try:
             self.frames = self.create_frames(file_name)
-            self.set_frame(3)
-        except Exception:
-            # If the image could not be loaded a template image is loaded.
-            # Program will most likely break either way due to animations.
+            self.set_frame(0)
+        except Exception as e:
+            # If the image could not be loaded an exception is thrown.
             print(f"Error loading {file_name}.png")
-            self.image = pygame.image.load("Images/template.png").convert()
+            raise
 
         self.rect = self.image.get_rect()
 
@@ -35,12 +36,14 @@ class Spritesheet(pygame.sprite.Sprite):
         y = 0
 
         for i in range(img_info.get_sprite_count()):
-            frame = pygame.Surface(mask_size).convert_alpha()
+            frame = pygame.Surface(mask_size, pygame.SRCALPHA).convert_alpha()
 
             # Sets the sprite to the initial image in the sheet.
             # Takes the image, the initial location, and then a Rect of the top-left and size.
             frame.blit(img, (0, 0), ((x, y), mask_size))
-            frames.append(frame)
+            # Scales up and adds to the list.
+            frames.append(pygame.transform.scale(frame,
+                (frame.get_size()[0] * Spritesheet.SCALE_FACTOR, frame.get_size()[1] * Spritesheet.SCALE_FACTOR)))
 
             # Goes through each sprite on the x-axis until the end, then loops to the next row.
             x += mask_size[0]
@@ -53,6 +56,9 @@ class Spritesheet(pygame.sprite.Sprite):
     # Sets the sprite to the frame at the given index.
     def set_frame(self, index):
         self.image = self.frames[index]
+
+    def set_position(self, location):
+        self.rect = location
 
     def update(self):
         pass

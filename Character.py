@@ -18,6 +18,9 @@ class Character(Spritesheet):
     def get_name(self):
         return self.__name
 
+    def set_name(self, name):
+        self.__name = name
+
     def get_health(self):
         return self.__health
 

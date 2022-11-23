@@ -1,5 +1,5 @@
 import pygame
-import Game
+from Game import Game
 
 def main():
     pygame.init()
@@ -7,10 +7,11 @@ def main():
     FPS = 60
     clock = pygame.time.Clock()
 
-    SCREEN_WIDTH = 500
-    SCREEN_HEIGHT = 500
+    SCREEN_WIDTH = 1000
+    SCREEN_HEIGHT = 1000
 
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+
     game = Game()
     
     # Main game loop, until the user quits.

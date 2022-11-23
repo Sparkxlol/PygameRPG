@@ -2,6 +2,7 @@ import os
 import random
 from ItemClasses import *
 from Enemy import Enemy
+from Party import Party
 
 # Function used to create items based on the given text file.
 def create_item(file_name):
@@ -34,18 +35,24 @@ def create_item(file_name):
 class BattleInitializer():
     # Function used to create a random list of enemies.
     def create_enemies():
-        enemy_directories = os.listdir("./Enemies")
-        enemies = []
+        try:
+            enemy_directories = os.listdir("./Enemies")
+            enemies = []
 
-        random_enemy = random.randint(0, len(enemy_directories) - 1)
+            random_enemy = random.randint(0, len(enemy_directories) - 1)
 
-        for i in range(random.randint(1, 3)):
-            enemies.append(Enemy(enemy_directories[random_enemy].removesuffix(".txt")))
-        
-        return enemies
+            for i in range(random.randint(1, 3)):
+                enemies.append(Enemy(enemy_directories[random_enemy].removesuffix(".txt")))
+            
+            return enemies
+        except OSError:
+            print("Enemies file could not be accessed.")
+            raise
     
     # Creates the user's items and characters.
     # Reads from the corresponding user.txt file.
+    #
+    # Returns a tuple of items and party members.
     #
     # File formatted as:
     # List of item names,   which are loaded from their corresponding files.
@@ -53,6 +60,29 @@ class BattleInitializer():
     # Name of user's character          (Repeated 3 lines for each party member)
     # Name of the character in file,    which is then loaded from the corresponding file.
     # Equipped item,    which is found in the item list and set to the character.
-    def create_user():
-        pass
+    def create_party():
+        try:
+            with open("user.txt", "r") as file:
+                item_names = file.readline().strip().split(" ")
+                items = [create_item(item) for item in item_names]
+                characters = []
+
+                while file.readline() == '\n':
+                    name = file.readline().strip()
+                    character = Party(file.readline().strip())
+                    character.set_name(name)
+                    
+                    held_item = file.readline().strip()
+                    
+                    if held_item in item_names:
+                        character.set_item(items[item_names.index(held_item)])
+                    else:
+                        character.set_item(None)
+
+                    characters.append(character)
+            
+            return (items, characters)
+        except Exception:
+            print("User.txt file couldn't be read")
+            raise
 
