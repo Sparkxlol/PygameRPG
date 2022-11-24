@@ -1,12 +1,13 @@
 import pygame
 from ImageInformation import ImageInformation
+import Initializer
 
 # Class that inherits from the pygame Sprite class.
 # 
 # Allows creation of multiple frames of sprites based on one given image.
 # This improves performance due to using one image, and allows animation.
 class Spritesheet(pygame.sprite.Sprite):
-    SCALE_FACTOR = 10
+    SCALE_FACTOR = Initializer.SCALE_FACTOR
 
     def __init__(self, file_name):
         super().__init__()
@@ -57,8 +58,17 @@ class Spritesheet(pygame.sprite.Sprite):
     def set_frame(self, index):
         self.image = self.frames[index]
 
+    # Sets the position of the sprite.
     def set_position(self, location):
         self.rect = location
+
+    # Returns the position of the sprite.
+    def get_position(self):
+        return self.rect
+
+    # Returns the dimensions of the sprite.
+    def get_size(self):
+        return self.rect.size
 
     def update(self):
         pass

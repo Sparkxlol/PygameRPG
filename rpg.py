@@ -1,4 +1,5 @@
 import pygame
+import Initializer
 from Game import Game
 
 def main():
@@ -7,20 +8,12 @@ def main():
     FPS = 60
     clock = pygame.time.Clock()
 
-    SCREEN_WIDTH = 1000
-    SCREEN_HEIGHT = 1000
-
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    screen = pygame.display.set_mode((Initializer.SCREEN_WIDTH, Initializer.SCREEN_HEIGHT))
 
     game = Game()
     
     # Main game loop, until the user quits.
     while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                return # Breaks out of the function to stop the game.
-        
         screen.fill((0, 0, 0))
 
         game.update()

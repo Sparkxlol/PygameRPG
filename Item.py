@@ -19,9 +19,6 @@ class Item(Spritesheet):
     def use_item(self, character):
         pass
 
-    def update(self):
-        pass
-
     def get_item_name(self):
         return self.__item_name
 
@@ -30,3 +27,6 @@ class Item(Spritesheet):
     
     def get_equipped(self):
         return self.__equipped
+
+    def update(self):
+        pass

@@ -1,3 +1,4 @@
+import sys
 import pygame
 from enum import Enum
 from Battle import Battle
@@ -12,12 +13,16 @@ class Mode(Enum):
 #
 # Has three modes using classes which change the "scene" of the game
 # Main(), Battle() and Explore() classes are created depending on how the game changes.
+# Each mode's UI is where events are iterated through, allowing easy access to player input.
 class Game():
     def __init__(self):
         self.set_mode(Mode.BATTLE)
 
     def update(self):
         self.__mode.update()
+        if self.__check_end():
+            self.__end()
+            self.set_mode(Mode.MENU)
 
     def draw(self, screen):
         self.__mode.draw(screen)
@@ -28,7 +33,7 @@ class Game():
     def set_mode(self, mode):
         match mode:
             case Mode.MENU:
-                pass
+                sys.exit()
             case Mode.BATTLE:
                 self.__mode = Battle()
             case Mode.EXPLORE:

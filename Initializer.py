@@ -1,6 +1,11 @@
+SCREEN_WIDTH = 1000
+SCREEN_HEIGHT = 1000
+SCALE_FACTOR = 10
+
 import os
 import random
 from ItemClasses import *
+from Spritesheet import Spritesheet
 from Enemy import Enemy
 from Party import Party
 
@@ -84,5 +89,17 @@ class BattleInitializer():
             return (items, characters)
         except Exception:
             print("User.txt file couldn't be read")
+            raise
+    
+    # Returns a random background from Images/Backgrounds.
+    # Used by the UI to make the background during Battle mode.
+    def create_background():
+        try:
+            backgrounds = os.listdir("./Images/Backgrounds")
+            background_choice = random.randint(0, len(backgrounds) - 1)
+
+            return Spritesheet("Backgrounds/" + backgrounds[background_choice].removesuffix(".png"))
+        except Exception:
+            print("Background couldn't be accessed.")
             raise
 

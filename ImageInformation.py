@@ -1,5 +1,7 @@
 # Class used to process and access spritesheet information
 #
+# MakeFile.py can be used to create ImageInformation files when given an image.
+#
 # File at ImageInformation/file_name.txt formatted as:
 # total_x, total_y
 # single_x, single_y
@@ -23,11 +25,14 @@ class ImageInformation():
             self.mask_size = (0, 0)
             self.sprite_count = 0
     
+    # Returns the images total size.
     def get_total_size(self):
         return self.total_size
     
+    # Returns each tile's size.
     def get_mask_size(self):
         return self.mask_size
 
+    # Returns the amount of tiles in the image.
     def get_sprite_count(self):
         return self.sprite_count
