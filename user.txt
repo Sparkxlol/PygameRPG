@@ -3,3 +3,7 @@ sword
 Ghost
 ghost
 None
+
+Jimmy
+ghost
+None
