@@ -1,4 +1,5 @@
 import pygame
+import random
 import Initializer
 from Initializer import BattleInitializer
 from UI import BattleUI
@@ -16,6 +17,12 @@ class Battle():
 
     def update(self):
         self.__UI.update()
+
+        targets = self.__UI.get_targets()
+        if targets != None:
+            self.user_attack(targets)
+            self.enemy_attack()
+
 
     # Draws the UI along with all alive characters.
     def draw(self, screen):
@@ -51,9 +58,48 @@ class Battle():
             case 'Attack':
                 pass
     
+    def user_attack(self, target):
+        mode = self.__UI.get_mode()
+        group_name = "Enemies" if mode == "Attack" or mode == "Special" else "Party"
+        party_member = self.__groups["Party"].sprites()[self.__UI.get_party()]
+        
+        match mode:
+            case "Attack":
+                target.change_health(-party_member.get_damage())
+            case "Special":
+                # Need to add decreasing special amount.
+                target.change_health(-party_member.get_damage() * 1.5)
+            case other:
+                pass
+
+        self.__UI.reset()
+        
+        if target.get_health() <= 0:
+            self.__groups[group_name].remove(target)
+            if (len(self.__groups[group_name]) > 0):
+                self.move_locations(self.__groups[group_name], group_name)
+            else:
+                self.__UI.set_move(False)
+
     def enemy_attack(self):
+        party = self.__groups["Party"]
+        killed = False
+
         for enemy in self.__groups["Enemies"]:
-            pass
+            random_party = party.sprites()[random.randint(0, len(party) - 1)]
+
+            random_party.change_health(-enemy.get_damage())
+
+            if random_party.get_health() <= 0:
+                self.__groups["Party"].remove(random_party)
+                killed = True
+                
+                if (len(party) <= 0):
+                    self.__UI.set_move(False)
+                    break
+                    
+        if (killed and len(party) > 0):
+            self.move_locations(self.__groups["Party"], "Party")
 
     def check_end(self):
         return self.__UI.get_mode() == "Exit"

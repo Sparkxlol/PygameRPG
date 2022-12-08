@@ -68,6 +68,7 @@ class Spritesheet(pygame.sprite.Sprite):
 
     # Returns the dimensions of the sprite.
     def get_size(self):
+        self.rect = self.image.get_rect() # Needs to reset rect, breaks sometimes???
         return self.rect.size
 
     def update(self):

@@ -25,6 +25,7 @@ class BattleUI():
         self.__mode = None 
         self.__mode_chosen = False
         self.__targets = None # Targets used to check which enemy/party/item is affecting who.
+        self.__current_party = 0
 
         # Bools to change avaliable actions.
         self.__pressed = False
@@ -42,51 +43,83 @@ class BattleUI():
         # Moves in fourths and then moving into the correct position.
         positions = [initial_x - scale * 9, initial_x * 2 - scale * 9, initial_x * 3 - scale * 9, initial_x * 4 - scale * 10]
 
-        if direction == "Right":
-            if self.__user_option_index != 3:
-                self.__user_option_index += 1
-        elif direction == "Left":
-            if self.__user_option_index != 0:
-                self.__user_option_index -= 1
+        # Changes index of choice based on the user input.
+        if direction == "Right" and self.__user_option_index != 3:
+            self.__user_option_index += 1
+        elif direction == "Left" and self.__user_option_index != 0:
+            self.__user_option_index -= 1
         
         self.__user_option_chosen.set_position((positions[self.__user_option_index], initial_y))
+    
+    def target_chooser(self, direction):
+        scale = Initializer.SCALE_FACTOR
+        position = (0, 0)
+        # Gets the correct group based on the current move.
+        group = self.__groups["Enemies"] if self.__mode == "Attack" or self.__mode == "Special" else self.__groups["Party"]
+
+        # Changes the index of the target based on user input.
+        if direction == "Up" and self.__user_option_index != 0:
+            self.__user_option_index -= 1
+        elif direction == "Down" and self.__user_option_index != len(group) - 1:
+            self.__user_option_index += 1
+        
+        position = group.sprites()[self.__user_option_index].get_position()        
+        self.__user_option_chosen.set_position((position[0] + scale * 17, position[1] + scale * 5))
 
     def check_inputs(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-
-            if event.type == pygame.KEYDOWN and self.__pressed == False:
-                self.__pressed = True
-
-                if self.__mode_chosen == False:
-                    if event.key == pygame.K_LEFT:
-                        self.move_chooser("Left")
-                    elif event.key == pygame.K_RIGHT:
-                        self.move_chooser("Right")
-                    # If the user hits enter, the mode is checked in Battle
-                    elif event.key == pygame.K_KP_ENTER:
-                        match self.__user_option_chosen:
-                            case 0:
-                                self.__mode = "Attack"
-                            case 1:
-                                self.__mode = "Special"
-                            case 2:
-                                self.__mode = "Item" 
-                            case 3:
-                                self.__mode = "Exit"
-                else:
-                    pass
-                    
-
-                          
             
-            if event.type == pygame.KEYUP:
-                self.__pressed = False
+            if self.__can_move:
+
+                if event.type == pygame.KEYDOWN and self.__pressed == False:
+                    self.__pressed = True
+
+                    if not self.__mode_chosen:
+                        if event.key == pygame.K_LEFT:
+                            self.move_chooser("Left")
+                        elif event.key == pygame.K_RIGHT:
+                            self.move_chooser("Right")
+                        # If the user hits enter, the mode is checked in Battle
+                        elif event.key == pygame.K_RETURN:
+                            match self.__user_option_index:
+                                case 0:
+                                    self.__mode = "Attack"
+                                case 1:
+                                    self.__mode = "Special"
+                                case 2:
+                                    self.__mode = "Item" 
+                                case 3:
+                                    self.__mode = "Exit"
+
+                            self.__mode_chosen = True
+                            self.__user_option_index = 0
+                            self.target_chooser("None")
+                    
+                    # Allows enemy/party selection.
+                    else:
+                        if event.key == pygame.K_UP:
+                            self.target_chooser("Up")
+                        elif event.key == pygame.K_DOWN:
+                            self.target_chooser("Down")
+                        elif event.key == pygame.K_RETURN:
+                            group = self.__groups["Enemies"] if self.__mode == "Attack" or self.__mode == "Special" else self.__groups["Party"]
+                            self.__targets = group.sprites()[self.__user_option_index]
+                            self.set_move(False)
+
+                if event.type == pygame.KEYUP:
+                    self.__pressed = False
     
+    def set_move(self, move):
+        self.__can_move = move
+
     def get_mode(self):
         return self.__mode
+
+    def get_party(self):
+        return self.__current_party
 
     def get_targets(self):
         return self.__targets
@@ -95,10 +128,12 @@ class BattleUI():
         self.__mode = None
         self.__mode_chosen = False
         self.__targets = None
+        self.__can_move = True
+        self.__user_option_index = 0
+        self.move_chooser("None")
 
     def update(self):
-        if self.__can_move:
-            self.check_inputs()
+        self.check_inputs()
 
     def draw(self, screen):
         self.__drawn_sprites.draw(screen)

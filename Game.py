@@ -20,12 +20,15 @@ class Game():
 
     def update(self):
         self.__mode.update()
-        if self.__check_end():
-            self.__end()
+        if self.check_end():
+            self.end()
             self.set_mode(Mode.MENU)
 
     def draw(self, screen):
         self.__mode.draw(screen)
+    
+    def check_end(self):
+        return False
 
     # Each mode MUST have a draw, update and end method to work properly.
     # This function creates a new "mode" being the main menu, battle mode or explore mode.

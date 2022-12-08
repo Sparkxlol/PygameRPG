@@ -40,10 +40,16 @@ class Character(Spritesheet):
         if amount == None:
             self.__health = self.get_total_health()
         else:
-            self.__health += amount
+            if self.__health + amount > self.get_total_health():
+                self.__health = self.get_total_health()
+            else:
+                self.__health += amount
 
     def change_special(self, amount = None):
         if amount == None:
             self.__special = self.get_total_special()
         else:
             self.__special += amount
+    
+    def __str__(self):
+        return self.__name + " " + str(self.__health)
