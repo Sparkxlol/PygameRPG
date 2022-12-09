@@ -112,18 +112,23 @@ class BattleUI():
                 if event.type == pygame.KEYUP:
                     self.__pressed = False
     
+    # Sets if the user can affect the UI.
     def set_move(self, move):
         self.__can_move = move
 
+    # Returns the mode of the battle, "Attack", "Special", "Item", "Exit"
     def get_mode(self):
         return self.__mode
 
+    # Gets the party member that is current selected.
     def get_party(self):
         return self.__current_party
 
+    # Gets the selected target by the user.
     def get_targets(self):
         return self.__targets
 
+    # Resets all stats to the default values. Allows sets the chooser to default position, and allows user input.
     def reset(self):
         self.__mode = None
         self.__mode_chosen = False
