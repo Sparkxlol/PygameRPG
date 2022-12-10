@@ -9,6 +9,10 @@ def main():
     clock = pygame.time.Clock()
 
     screen = pygame.display.set_mode((Initializer.SCREEN_WIDTH, Initializer.SCREEN_HEIGHT))
+    pygame.display.set_caption("Mysteria")
+
+    icon = pygame.image.load("Images/icon.png")
+    pygame.display.set_icon(icon)
 
     game = Game()
     

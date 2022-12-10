@@ -9,10 +9,11 @@ class BattleUI():
         # UI Materials: Background, Buttons, etc.
         self.__itemUI = BattleItemUI(groups["Items"])
         self.__background = BattleInitializer.create_background()
-        self.__user_options = Spritesheet("battleUI")
+        self.__user_options = Spritesheet("battleUI") # General UI
         self.__user_options.set_position((0, Initializer.SCREEN_HEIGHT - Initializer.SCALE_FACTOR * 20))
         self.__user_option_index = 0
-        self.__user_option_chosen = Spritesheet("battleUIChosen")
+        self.__user_option_chosen = Spritesheet("battleUIChosen") # Chosen option.
+        self.__user_chosen = Spritesheet("battleUIUser") # Chosen party member.
         self.move_chooser("None")
 
         # Groups to draw sprites
@@ -20,6 +21,7 @@ class BattleUI():
         self.__drawn_sprites.add(self.__background)
         self.__drawn_sprites.add(self.__user_options)
         self.__drawn_sprites.add(self.__user_option_chosen)
+        self.__drawn_sprites.add(self.__user_chosen)
 
         # Mode information: None, Attack, Special, Item, Exit
         self.__groups = groups # All enemy, party, and item sprites, needed to check positions
@@ -31,6 +33,9 @@ class BattleUI():
         # Bools to change avaliable actions.
         self.__pressed = False
         self.__can_move = True
+
+        # Moves to current party member -> needs party position before.
+        self.move_chosen()
 
     def move_chooser(self, direction):
         width = Initializer.SCREEN_WIDTH
@@ -108,8 +113,13 @@ class BattleUI():
                         elif event.key == pygame.K_DOWN:
                             self.target_chooser("Down")
                         elif event.key == pygame.K_RETURN:
-                            group = self.__groups["Enemies"] if self.__mode == "Attack" or self.__mode == "Special" else self.__groups["Party"]
+                            group = self.__groups["Enemies"] if self.__mode == "Attack" or self.__mode == "Special" else self.__groups["Party"]                                
                             self.__targets = group.sprites()[self.__user_option_index]
+
+                            # Adds the used item to the end of the targets.
+                            if (self.__mode == "Item"):
+                                self.__targets = (self.__targets, self.__itemUI.get_item())
+
                             self.set_move(False)
                 
                 elif self.__itemUI.get_move():
@@ -119,7 +129,7 @@ class BattleUI():
                         self.__itemUI.move_chooser("Right")
                     # If the user hits enter, the mode is checked in Battle
                     elif event.key == pygame.K_RETURN:
-                        item = self.__itemUI.get_selection()
+                        self.__itemUI.hold_item()
                         self.__itemUI.set_move(False)
                         self.__can_move = True
                     elif event.key == pygame.K_ESCAPE:
@@ -128,7 +138,10 @@ class BattleUI():
             if event.type == pygame.KEYUP:
                 self.__pressed = False
                     
-
+    # Moves the chosen box around whoever the current party is.
+    def move_chosen(self):
+        chosen_pos = self.__groups["Party"].sprites()[self.__current_party].get_position()
+        self.__user_chosen.set_position((chosen_pos[0] - 1 * Initializer.SCALE_FACTOR, chosen_pos[1] - 1 * Initializer.SCALE_FACTOR))
     
     # Sets if the user can affect the UI.
     def set_move(self, move):
@@ -142,6 +155,10 @@ class BattleUI():
     def get_party(self):
         return self.__current_party
 
+    # Sets the current party members
+    def set_party(self, party):
+        self.__current_party = party
+
     # Gets the selected target by the user.
     def get_targets(self):
         return self.__targets
@@ -154,7 +171,8 @@ class BattleUI():
         self.__can_move = True
         self.__itemUI.set_move(False)
         self.__user_option_index = 0
-        self.move_chooser("None")
+        self.move_chooser("None")    
+        self.move_chosen()
 
     def update(self):
         self.check_inputs()
@@ -174,14 +192,11 @@ class BattleUI():
 class BattleItemUI:
     def __init__(self, items):
         self.__item_group = items
+        self.__current_item = None
+        self.__user_options = []
         self.__user_option_chosen = Spritesheet("battleUIChosen")
         self.__user_option_index = 0
         self.move_initial()
-
-        self.__drawn_sprites = pygame.sprite.Group()
-        self.__drawn_sprites.add(self.__user_options)
-        self.__drawn_sprites.add(self.__user_option_chosen)
-        self.__drawn_sprites.add(items)
 
         self.__can_move = False
     
@@ -190,6 +205,7 @@ class BattleItemUI:
         self.__user_options = [Spritesheet("itemUI") for item in self.__item_group]
         pos = [0, 68 * Initializer.SCALE_FACTOR]
         jump = 20 * Initializer.SCALE_FACTOR
+        self.__user_option_index = 0
         self.__user_option_chosen.set_position((11 * Initializer.SCALE_FACTOR, pos[1] + 2 * Initializer.SCALE_FACTOR))
 
         # Moves each box and item into the correct position.
@@ -197,6 +213,12 @@ class BattleItemUI:
             box.set_position(pos)
             item.set_position((pos[0] + 2 * Initializer.SCALE_FACTOR, pos[1] + 2 * Initializer.SCALE_FACTOR))
             pos[0] += jump
+
+        # Adds each element to a group to draw. This is needed to prevent extra boxes from spawning around former items.
+        self.__drawn_sprites = pygame.sprite.Group()
+        self.__drawn_sprites.add(self.__user_options)
+        self.__drawn_sprites.add(self.__user_option_chosen)
+        self.__drawn_sprites.add(self.__item_group)
     
     def move_chooser(self, direction):
         # Returns if there are no items.
@@ -231,9 +253,16 @@ class BattleItemUI:
             self.__user_option_index -= 1
             self.__user_option_chosen.set_position((cur_pos[0] - jump, cur_pos[1]))
 
-    # Returns the currently selected item and prevents movement.
-    def get_selection(self):
-        return self.__item_group.sprites()[self.__user_option_index]
+    # Sets currently selected item.
+    def hold_item(self):
+        self.__current_item = self.__item_group.sprites()[self.__user_option_index]
+    
+    # Returns the item being held and removes from current_item.
+    def get_item(self):
+        item = self.__current_item
+        self.__current_item = None
+
+        return item
 
     # Returns if the user can affect the items.
     def get_move(self):
@@ -241,6 +270,7 @@ class BattleItemUI:
 
     # Sets if the user can affect the UI.
     def set_move(self, move):
+        self.move_initial()
         self.__can_move = move
 
     def draw(self, screen):

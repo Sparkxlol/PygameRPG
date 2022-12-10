@@ -11,6 +11,7 @@ class Spritesheet(pygame.sprite.Sprite):
 
     def __init__(self, file_name):
         super().__init__()
+        self.__flipped = False
 
         try:
             self.frames = self.create_frames(file_name)
@@ -55,9 +56,16 @@ class Spritesheet(pygame.sprite.Sprite):
 
         return frames
 
+    def set_flip(self, flip):
+        self.__flipped = flip
+        self.set_frame(0)
+
     # Sets the sprite to the frame at the given index.
     def set_frame(self, index):
-        self.image = self.frames[index]
+        if self.__flipped:
+            self.image = pygame.transform.flip(self.frames[index], True, False)
+        else:
+            self.image = self.frames[index]
 
     # Sets the position of the sprite.
     def set_position(self, location):

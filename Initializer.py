@@ -41,7 +41,7 @@ class BattleInitializer():
     # Function used to create a random list of enemies.
     def create_enemies():
         try:
-            enemy_directories = os.listdir("./Enemies")
+            enemy_directories = os.listdir("./Characters")
             enemies = []
 
             for i in range(random.randint(1, 3)):
@@ -50,7 +50,7 @@ class BattleInitializer():
             
             return enemies
         except OSError:
-            print("Enemies file could not be accessed.")
+            print("Characters file could not be accessed.")
             raise
     
     # Creates the user's items and characters.
@@ -78,8 +78,10 @@ class BattleInitializer():
                     
                     held_item = file.readline().strip()
                     
-                    if held_item in item_names:
+                    # Sets the party member's item to the given item if it's not already equipped and exists.
+                    if held_item in item_names and not items[item_names.index(held_item)].get_equipped:
                         character.set_item(items[item_names.index(held_item)])
+                        items[item_names.index(held_item)].set_equipped = True
                     else:
                         character.set_item(None)
 

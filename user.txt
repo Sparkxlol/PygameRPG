@@ -1,6 +1,6 @@
-sword sword
+sword op_sword potion
 
-Ghost
+Bob
 ghost
 None
 
