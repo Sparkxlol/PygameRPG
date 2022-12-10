@@ -9,6 +9,7 @@ class Enemy(Character):
     # Special attacks do 1.5x the damage, but have limited uses.
     def attack(self):
         choice = random.randint(0, 2)
+        print(self.get_damage())
 
         if choice == 2 and self.get_special > 0:
             self.change_special(-1)

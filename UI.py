@@ -14,6 +14,7 @@ class BattleUI():
         self.__user_option_index = 0
         self.__user_option_chosen = Spritesheet("battleUIChosen") # Chosen option.
         self.__user_chosen = Spritesheet("battleUIUser") # Chosen party member.
+        self.__text = []
         self.move_chooser("None")
 
         # Groups to draw sprites
@@ -100,7 +101,10 @@ class BattleUI():
                                     self.__can_move = False
                                     self.__itemUI.set_move(True)
                                 case 3:
+                                    # Escapes to the Battle object to quit the game.
                                     self.__mode = "Exit"
+                                    self.__mode_chosen = True
+                                    return
 
                             self.__mode_chosen = True
                             self.__user_option_index = 0
@@ -143,6 +147,17 @@ class BattleUI():
         chosen_pos = self.__groups["Party"].sprites()[self.__current_party].get_position()
         self.__user_chosen.set_position((chosen_pos[0] - 1 * Initializer.SCALE_FACTOR, chosen_pos[1] - 1 * Initializer.SCALE_FACTOR))
     
+    # Creates text above an enemy indicating its change in health.
+    def create_damage_text(self, value, target_position):
+        if value == None:
+            return
+
+        # Red or Green based on change.
+        color = (255, 0, 0) if value < 0 else (0, 255, 34)
+        position = (target_position[0] + 20 * Initializer.SCALE_FACTOR, target_position[1] + 5 * Initializer.SCALE_FACTOR)
+
+        self.__text.append(TextUI(str(value), color, position))
+    
     # Sets if the user can affect the UI.
     def set_move(self, move):
         self.__can_move = move
@@ -177,6 +192,11 @@ class BattleUI():
     def update(self):
         self.check_inputs()
 
+        for text in self.__text:
+            text.update()
+            if text.get_time() > Initializer.FPS:
+                self.__text.remove(text)
+
     def draw(self, screen):
         # Removes the chooser icon if the user cannot selected and vice versa.
         if (not self.__can_move and self.__drawn_sprites.has(self.__user_option_chosen)):
@@ -188,6 +208,10 @@ class BattleUI():
 
         if self.__itemUI.get_move():
             self.__itemUI.draw(screen)
+
+        # Draws text on the screen indicating changes in the game.
+        for text in self.__text:
+            screen.blit(text.get_img(), text.get_rect())
 
 class BattleItemUI:
     def __init__(self, items):
@@ -275,3 +299,25 @@ class BattleItemUI:
 
     def draw(self, screen):
         self.__drawn_sprites.draw(screen)
+
+class TextUI:
+    FONT = pygame.font.SysFont("Font/PixelOperator.ttf", 20)
+
+    def __init__(self, text, color, position):
+        self.__time = 0
+        self.__img = pygame.transform.scale(TextUI.FONT.render(text, True, color), (Initializer.SCALE_FACTOR * 5, Initializer.SCALE_FACTOR * 5))
+        self.__rect = self.__img.get_rect()
+        self.__rect.x = position[0]
+        self.__rect.y = position[1]
+    
+    def get_time(self):
+        return self.__time
+
+    def get_img(self):
+        return self.__img
+
+    def get_rect(self):
+        return self.__rect
+
+    def update(self):
+        self.__time += 1

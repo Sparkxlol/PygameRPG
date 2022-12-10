@@ -27,6 +27,7 @@ class Game():
         self.__mode.draw(screen)
     
     def check_end(self):
+        #print(self.__mode.end())
         return self.__mode.end()
 
     # Each mode MUST have a draw, update and end method to work properly.

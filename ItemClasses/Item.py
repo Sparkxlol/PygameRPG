@@ -16,15 +16,19 @@ class Item(Spritesheet):
         self.__type = given_type
         self.__equipped = False
     
+    # Returns the type of Item: self, normal, special
     def get_type(self):
         return self.__type
     
+    # Returns the name of the item.
     def get_item_name(self):
         return self.__item_name
 
+    # Returns if the item has been equipped by a party member.
     def get_equipped(self):
         return self.__equipped
     
+    # Sets equipped to the given value.
     def set_equipped(self, equipped):
         self.__equipped = equipped
 

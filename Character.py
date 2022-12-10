@@ -16,8 +16,8 @@ class Character(Spritesheet):
 
         self.__name = information[0]
         self.__initial_health = information[1]
-        self.__initial_special = information[2]
-        self.__damage = information[3]
+        self.__damage = information[2]
+        self.__initial_special = information[3]
 
         self.__health = self.__initial_health
         self.__special = self.__initial_special

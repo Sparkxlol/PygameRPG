@@ -26,6 +26,7 @@ class Battle():
         if targets != None:
             self.user_attack(targets)
 
+            # Prevents changes after one side has already won.
             if not self.__ended:
                 self.__UI.set_party(self.__UI.get_party() + 1)
 
@@ -34,10 +35,13 @@ class Battle():
                     self.__UI.set_party(0)
                 
                 # Resets positions after someone attacks.
-                self.__UI.reset()
+                if len(self.__groups["Party"]) > 0 and len(self.__groups["Enemies"]) > 0:
+                    self.__UI.reset()
     
+    # Returns if the game has ended based on a entire side being dead,
+    # or the user exiting.
     def end(self):
-        return self.__ended or self.__UI.get_mode == "Exit"
+        return self.__ended or self.__UI.get_mode() == "Exit"
 
     # Draws the UI along with all alive characters.
     def draw(self, screen):
@@ -77,15 +81,18 @@ class Battle():
         mode = self.__UI.get_mode()
         group_name = "Enemies" if mode == "Attack" or mode == "Special" else "Party"
         party_member = self.__groups["Party"].sprites()[self.__UI.get_party()]
+        change = 0
         
         match mode:
             case "Attack":
-                target.change_health(-party_member.get_damage())
+                change = -party_member.get_damage()
+                target.change_health(change)
             case "Special":
                 # Need to add decreasing special amount.
-                target.change_health(-party_member.get_damage() * 1.5)
+                change = -party_member.get_damage()
+                target.change_health(change)
             case "Item":
-                self.use_item(target)
+                change = self.use_item(target)
                 target = target[0]
         
         if target.get_health() <= 0:
@@ -95,21 +102,30 @@ class Battle():
             else:
                 self.__ended = True
                 self.__UI.set_move(False)
+        else:
+            self.__UI.create_damage_text(change, target.get_position())
         
         print(target, mode)
 
     def enemy_attack(self):
         party = self.__groups["Party"]
         killed = False
+        party_health_changes = []
+
+        for i in range(len(party)):
+            party_health_changes.append(0)
 
         for enemy in self.__groups["Enemies"]:
-            random_party = party.sprites()[random.randint(0, len(party) - 1)]
+            rand_int = random.randint(0, len(party) - 1)
+            random_party = party.sprites()[rand_int]
 
             random_party.change_health(-enemy.get_damage())
-            print(random_party, "Attack")
+            party_health_changes[rand_int] += -enemy.get_damage()
+            print(random_party, "Attack", party_health_changes[rand_int])
 
             if random_party.get_health() <= 0:
                 self.__groups["Party"].remove(random_party)
+                party_health_changes.pop(rand_int)
                 killed = True
                 
                 if (len(party) <= 0):
@@ -120,6 +136,13 @@ class Battle():
         if killed and len(party) > 0:
             self.move_locations(self.__groups["Party"], "Party")
 
+        index = 0
+        for party in party.sprites():
+            if party_health_changes[index] != 0:
+                self.__UI.create_damage_text(party_health_changes[index], party.get_position())
+            index += 1
+
+
     # Passes a tuple holding the targets, with the last index being the item.
     # Can be using a Normal (Attacking), Self (Healing), or Special item.
     def use_item(self, target):
@@ -129,6 +152,8 @@ class Battle():
         if item.get_type() == "Self":
             target.change_health(item.get_heal())
             item.kill()
+
+            return item.get_heal()
         else:
             # Removes the item from any party members.
             if item.get_equipped:
@@ -139,3 +164,5 @@ class Battle():
 
             target.set_item(item)
             item.set_equipped = True
+
+            return None

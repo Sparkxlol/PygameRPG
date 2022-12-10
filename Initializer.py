@@ -1,6 +1,7 @@
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 1000
 SCALE_FACTOR = 10
+FPS = 60
 
 import os
 import random
