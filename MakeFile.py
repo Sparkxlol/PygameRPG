@@ -1,4 +1,7 @@
 # File used to create ImageInformation files from the command line.
+# Created as:
+# python MakeFile.py template.png
+# python MakeFile.py template.png 16 16 4           Found total size of 32x32 and creates 4 tiles out of it. 
 
 import sys
 import os

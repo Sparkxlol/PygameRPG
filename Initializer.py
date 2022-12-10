@@ -1,6 +1,7 @@
+# Constants used in much of the program.
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 1000
-SCALE_FACTOR = 10
+SCALE_FACTOR = 10 # How much each image is scaled by.
 FPS = 60
 
 import os
@@ -42,9 +43,11 @@ class BattleInitializer():
     # Function used to create a random list of enemies.
     def create_enemies():
         try:
+            # Finds each character.
             enemy_directories = os.listdir("./Characters")
             enemies = []
 
+            # Generates 1-3 enemies and returns the list.
             for i in range(random.randint(1, 3)):
                 random_enemy = random.randint(0, len(enemy_directories) - 1)
                 enemies.append(Enemy(enemy_directories[random_enemy].removesuffix(".txt")))
@@ -80,7 +83,7 @@ class BattleInitializer():
                     held_item = file.readline().strip()
                     
                     # Sets the party member's item to the given item if it's not already equipped and exists.
-                    if held_item in item_names and not items[item_names.index(held_item)].get_equipped:
+                    if held_item in item_names and not items[item_names.index(held_item)].get_equipped():
                         character.set_item(items[item_names.index(held_item)])
                         items[item_names.index(held_item)].set_equipped = True
                     else:

@@ -1,6 +1,7 @@
 from Character import Character
 import random
 
+# Class which inherits off Character and defines an enemy
 class Enemy(Character):
     def __init__(self, file_name):
         super().__init__(file_name)

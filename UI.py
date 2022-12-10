@@ -1,9 +1,11 @@
-import sys
 import pygame
 import Initializer
 from Initializer import BattleInitializer
 from Spritesheet import Spritesheet
 
+# Class used in the Battle which handles user-inputs and the general UI.
+#
+# Battle and BattleUI are intertwined, not fully encapsulated.
 class BattleUI():
     def __init__(self, groups):
         # UI Materials: Background, Buttons, etc.
@@ -14,7 +16,7 @@ class BattleUI():
         self.__user_option_index = 0
         self.__user_option_chosen = Spritesheet("battleUIChosen") # Chosen option.
         self.__user_chosen = Spritesheet("battleUIUser") # Chosen party member.
-        self.__text = []
+        self.__text = [] # Text when enemies/party is affected.
         self.move_chooser("None")
 
         # Groups to draw sprites
@@ -38,6 +40,7 @@ class BattleUI():
         # Moves to current party member -> needs party position before.
         self.move_chosen()
 
+    # Moves the selected UI option based on user input.
     def move_chooser(self, direction):
         width = Initializer.SCREEN_WIDTH
         height = Initializer.SCREEN_HEIGHT
@@ -58,6 +61,7 @@ class BattleUI():
         
         self.__user_option_chosen.set_position((positions[self.__user_option_index], initial_y))
     
+    # Moves the selected target based on user input.
     def target_chooser(self, direction):
         scale = Initializer.SCALE_FACTOR
         position = (0, 0)
@@ -73,11 +77,20 @@ class BattleUI():
         position = group.sprites()[self.__user_option_index].get_position()        
         self.__user_option_chosen.set_position((position[0] + scale * 17, position[1] + scale * 5))
 
+    # Function to check inputs while in a Battle.
+    # There are limited inputs in the Battle Menu.
+    #
+    # Up/Down/Left/Right arrows: used to move the selection.
+    # Enter: used to select an option that is currently selected
+    # Esc: used to go back in an option
+    # X-Button: used to quit the game quickly.
     def check_inputs(self):
         for event in pygame.event.get():
+            # Quits when the x-button is clicked.
             if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
+                self.__mode = "Exit"
+                self.__mode_chosen = True
+                return
 
             # Prevents movement continually.
             if event.type == pygame.KEYDOWN and self.__pressed == False:
@@ -117,6 +130,7 @@ class BattleUI():
                         elif event.key == pygame.K_DOWN:
                             self.target_chooser("Down")
                         elif event.key == pygame.K_RETURN:
+                            # Finds the currently selected group based on options and changes the target.
                             group = self.__groups["Enemies"] if self.__mode == "Attack" or self.__mode == "Special" else self.__groups["Party"]                                
                             self.__targets = group.sprites()[self.__user_option_index]
 
@@ -125,7 +139,10 @@ class BattleUI():
                                 self.__targets = (self.__targets, self.__itemUI.get_item())
 
                             self.set_move(False)
+                        elif event.key == pygame.K_ESCAPE:
+                            self.reset()
                 
+                # Checks inputs if the itemUI is active.
                 elif self.__itemUI.get_move():
                     if event.key == pygame.K_LEFT:
                         self.__itemUI.move_chooser("Left")
@@ -133,9 +150,10 @@ class BattleUI():
                         self.__itemUI.move_chooser("Right")
                     # If the user hits enter, the mode is checked in Battle
                     elif event.key == pygame.K_RETURN:
-                        self.__itemUI.hold_item()
+                        self.__itemUI.hold_item() # Changes the current item, which can accessed later by the Battle.
                         self.__itemUI.set_move(False)
                         self.__can_move = True
+                    # Moves back to selecting options.
                     elif event.key == pygame.K_ESCAPE:
                         self.reset()
 
@@ -189,14 +207,20 @@ class BattleUI():
         self.move_chooser("None")    
         self.move_chosen()
 
+    # Updates the inputs and created text.
     def update(self):
         self.check_inputs()
 
+        if self.__mode == "Exit":
+            return
+
+        # Checks each text if it is time to delete after 1 second.
         for text in self.__text:
             text.update()
             if text.get_time() > Initializer.FPS:
                 self.__text.remove(text)
 
+    # Draws each element of the UI if needed.
     def draw(self, screen):
         # Removes the chooser icon if the user cannot selected and vice versa.
         if (not self.__can_move and self.__drawn_sprites.has(self.__user_option_chosen)):
@@ -206,6 +230,7 @@ class BattleUI():
 
         self.__drawn_sprites.draw(screen)
 
+        # Draws the UI if accessed.
         if self.__itemUI.get_move():
             self.__itemUI.draw(screen)
 
@@ -213,20 +238,23 @@ class BattleUI():
         for text in self.__text:
             screen.blit(text.get_img(), text.get_rect())
 
+# Class used in BattleUI to handle the Item UI.
 class BattleItemUI:
     def __init__(self, items):
+        # Creates needed variables to access items and UI.
         self.__item_group = items
-        self.__current_item = None
+        self.__current_item = None # Selected item.
         self.__user_options = []
         self.__user_option_chosen = Spritesheet("battleUIChosen")
         self.__user_option_index = 0
-        self.move_initial()
+        self.move_initial() # Moves all items into position.
 
         self.__can_move = False
     
+    # Moves the selector, all items and creates boxes for each item.
     def move_initial(self):
         # Creates a box for each of the items.
-        self.__user_options = [Spritesheet("itemUI") for item in self.__item_group]
+        self.__user_options = [Spritesheet("itemUI") for item in self.__item_group] 
         pos = [0, 68 * Initializer.SCALE_FACTOR]
         jump = 20 * Initializer.SCALE_FACTOR
         self.__user_option_index = 0
@@ -244,6 +272,7 @@ class BattleItemUI:
         self.__drawn_sprites.add(self.__user_option_chosen)
         self.__drawn_sprites.add(self.__item_group)
     
+    # Moves the selector based on user input.
     def move_chooser(self, direction):
         # Returns if there are no items.
         if (len(self.__item_group) == 0):
@@ -254,6 +283,8 @@ class BattleItemUI:
         position = self.__user_option_chosen.get_position()
 
         # Moves the boxes, items and chooser to the right if need be. 
+        # If the full size of the screen is taken, must scroll past.
+        #### Not currently working ####
         '''
         if (position[0] >= 80 and direction == "Right") or (position[0] <= 0 and direction == "Left"):
             move_pos = [0, 0]
@@ -294,30 +325,39 @@ class BattleItemUI:
 
     # Sets if the user can affect the UI.
     def set_move(self, move):
+        # Resets all positions and boxes.
         self.move_initial()
         self.__can_move = move
 
+    # Draws the needed sprites to the screen.
     def draw(self, screen):
         self.__drawn_sprites.draw(screen)
 
+# Class used in BattleUI to create damage/heal text.
 class TextUI:
-    FONT = pygame.font.SysFont("Font/PixelOperator.ttf", 20)
+    # Generates the font "PixelOperator"
+    FONT = pygame.font.SysFont("Font/PixelOperator.ttf", 30)
 
     def __init__(self, text, color, position):
-        self.__time = 0
+        self.__time = 0 # Counter used to delete the text after a second.
+        # Scales the text up by 5.
         self.__img = pygame.transform.scale(TextUI.FONT.render(text, True, color), (Initializer.SCALE_FACTOR * 5, Initializer.SCALE_FACTOR * 5))
         self.__rect = self.__img.get_rect()
         self.__rect.x = position[0]
         self.__rect.y = position[1]
     
+    # Returns the current time.
     def get_time(self):
         return self.__time
 
+    # Returns the image used for drawing.
     def get_img(self):
         return self.__img
 
+    # Returns the rect used for drawing.
     def get_rect(self):
         return self.__rect
 
+    # Updates the time.
     def update(self):
         self.__time += 1

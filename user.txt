@@ -1,8 +1,8 @@
-sword op_sword potion
+sword op_sword potion wand
 
 Bob
 ghost
-None
+sword
 
 Jimmy
 ghost

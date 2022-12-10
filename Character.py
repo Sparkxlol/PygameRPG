@@ -22,11 +22,12 @@ class Character(Spritesheet):
         self.__health = self.__initial_health
         self.__special = self.__initial_special
 
+    # Returns the stats of a character based on their given file.
     def get_information(file_name):
         try:
             with open("Characters/" + file_name + ".txt") as file:
-                values = [file.readline().strip()]
-                for value in file.readline().split(" "):
+                values = [file.readline().strip()] # Name
+                for value in file.readline().split(" "): # All other values.
                     values.append(int(value))
                 return tuple(values)
         except ValueError:

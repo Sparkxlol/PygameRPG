@@ -6,6 +6,7 @@ import Initializer
 # 
 # Allows creation of multiple frames of sprites based on one given image.
 # This improves performance due to using one image, and allows animation.
+#### Animation not yet created ####
 class Spritesheet(pygame.sprite.Sprite):
     SCALE_FACTOR = Initializer.SCALE_FACTOR
 
