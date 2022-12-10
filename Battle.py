@@ -14,6 +14,7 @@ class Battle():
         self.move_locations(self.__groups["Enemies"], "Enemies")
         self.move_locations(self.__groups["Party"], "Party")
         self.__UI = BattleUI(self.__groups)
+        self.__ended = False
 
     def update(self):
         self.__UI.update()
@@ -22,7 +23,9 @@ class Battle():
         if targets != None:
             self.user_attack(targets)
             self.enemy_attack()
-
+    
+    def end(self):
+        return self.__ended or self.__UI.get_mode == "Exit"
 
     # Draws the UI along with all alive characters.
     def draw(self, screen):
@@ -79,7 +82,10 @@ class Battle():
             if (len(self.__groups[group_name]) > 0):
                 self.move_locations(self.__groups[group_name], group_name)
             else:
+                self.__ended = True
                 self.__UI.set_move(False)
+        
+        print("Enemy: " + str(target.get_health()))
 
     def enemy_attack(self):
         party = self.__groups["Party"]
@@ -89,6 +95,7 @@ class Battle():
             random_party = party.sprites()[random.randint(0, len(party) - 1)]
 
             random_party.change_health(-enemy.get_damage())
+            print("Party: " + str(random_party.get_health()))
 
             if random_party.get_health() <= 0:
                 self.__groups["Party"].remove(random_party)
@@ -96,11 +103,9 @@ class Battle():
                 
                 if (len(party) <= 0):
                     self.__UI.set_move(False)
+                    self.__ended = True
                     break
                     
         if (killed and len(party) > 0):
             self.move_locations(self.__groups["Party"], "Party")
-
-    def check_end(self):
-        return self.__UI.get_mode() == "Exit"
     

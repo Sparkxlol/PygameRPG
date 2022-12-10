@@ -5,6 +5,7 @@ class SelfItem(Item):
         super().__init__(file_name)
 
         self.__heal_amount = heal_amount
+        self.__type = "Self"
 
-    def use_item(self, character):
-        pass
+    def get_heal(self):
+        return self.__heal_amount

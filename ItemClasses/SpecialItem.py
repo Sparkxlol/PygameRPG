@@ -6,6 +6,7 @@ class SpecialItem(Item):
 
         self.__damage_amount = damage_amount
         self.__special_amount = special_amount
+        self.__type = "Special"
 
-    def use_item(self, character):
-        pass
+    def get_special(self):
+        return (self.__damage_amount, self.__special_amount)

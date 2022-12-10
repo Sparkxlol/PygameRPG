@@ -44,9 +44,8 @@ class BattleInitializer():
             enemy_directories = os.listdir("./Enemies")
             enemies = []
 
-            random_enemy = random.randint(0, len(enemy_directories) - 1)
-
             for i in range(random.randint(1, 3)):
+                random_enemy = random.randint(0, len(enemy_directories) - 1)
                 enemies.append(Enemy(enemy_directories[random_enemy].removesuffix(".txt")))
             
             return enemies

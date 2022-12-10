@@ -14,7 +14,7 @@ image_name = "Images/" + sys.argv[1]
 # Makes sure that the image file exists.
 if not os.path.exists(image_name):
     print(f"{image_name} doesn't exist!")
-    raise
+    raise FileNotFoundError
 
 file_name = sys.argv[1].removesuffix(".png")
 
@@ -43,3 +43,5 @@ try:
 except:
     print("Error creating file")
     raise
+
+print("Successfully created ImageInformation/" + file_name + ".txt")

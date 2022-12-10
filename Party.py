@@ -6,6 +6,20 @@ class Party(Character):
 
         self.__item = None
 
+    # Returns the amount of the damage the character should deal based on item.
+    def get_damage(self):
+        # Default damage.
+        if self.__item == None or self.__item.get_type() == 'Heal':
+            return super().get_damage()
+        # Damage holding an attacking weapon.
+        elif self.__item.get_type() == 'Normal':
+            return super().get_damage() + self.__item.get_damage()
+        # Damage holding a special weapon.
+        else:
+            special = self.__item.get_special()
+            self.change_special(-special[1])
+            return super().get_damage() + special[0]
+
     def set_item(self, item):
         self.__item = item
     

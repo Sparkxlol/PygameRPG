@@ -21,6 +21,7 @@ class Spritesheet(pygame.sprite.Sprite):
             raise
 
         self.rect = self.image.get_rect()
+        self.__name = file_name
 
 
     # Creates a list of Surfaces with each image from the given file.
@@ -60,7 +61,7 @@ class Spritesheet(pygame.sprite.Sprite):
 
     # Sets the position of the sprite.
     def set_position(self, location):
-        self.rect = location
+        self.rect = pygame.Rect(location, (self.rect.width, self.rect.height))
 
     # Returns the position of the sprite.
     def get_position(self):
@@ -68,8 +69,10 @@ class Spritesheet(pygame.sprite.Sprite):
 
     # Returns the dimensions of the sprite.
     def get_size(self):
-        self.rect = self.image.get_rect() # Needs to reset rect, breaks sometimes???
         return self.rect.size
+
+    def __str__(self):
+        return f"{self.__name}: {self.get_position()}"
 
     def update(self):
         pass

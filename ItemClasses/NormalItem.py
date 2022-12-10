@@ -5,6 +5,7 @@ class NormalItem(Item):
         super().__init__(file_name)
 
         self.__damage_amount = damage_amount
+        self.__type = "Normal"
 
-    def use_item(self, character):
-        pass
+    def get_damage(self):
+        return self.__damage_amount
